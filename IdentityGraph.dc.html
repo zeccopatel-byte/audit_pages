@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"><script src="./orb-cube.js"></script><style>body{margin:0;font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;background:transparent}*,*::before,*::after{box-sizing:border-box}a{color:#F2F2F0}a:hover{color:#FF4B1F}@keyframes flow{to{stroke-dashoffset:-1}}@keyframes gDraw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}@keyframes gIn{from{opacity:0;transform:scale(.55)}}@keyframes spin{to{transform:rotate(360deg)}}</style><script>window.__A=function(p){var e=document.querySelector('img[data-a="'+p+'"]');return e&&e.src?e.src:p};</script></helmet>
+<div aria-hidden="true" style="position:absolute;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none;left:-9999px;top:0"><img data-a="assets/icons-3d/fix.png" src="assets/icons-3d/fix.png" alt=""><img data-a="assets/icons-3d/cost3.png" src="assets/icons-3d/cost3.png" alt=""><img data-a="assets/icons-3d/access.png" src="assets/icons-3d/access.png" alt=""><img data-a="assets/icons-3d/report.png" src="assets/icons-3d/report.png" alt=""><img data-a="assets/icons-3d/connect.png" src="assets/icons-3d/connect.png" alt=""><img data-a="assets/icons-3d/blog.png" src="assets/icons-3d/blog.png" alt=""><img data-a="assets/icons-3d/rank.png" src="assets/icons-3d/rank.png" alt=""></div>
+<div style="position:relative;border-radius:20px;padding:3px;overflow:hidden;isolation:isolate">
+  <span aria-hidden="true" style="position:absolute;left:50%;top:50%;width:200%;aspect-ratio:1;margin:-100% 0 0 -100%;background:conic-gradient(from 0deg,#FF4B1F,rgba(255,75,31,0) 22%,rgba(31,221,255,0) 50%,#1FDDFF 72%,rgba(31,221,255,0) 88%,#FF4B1F);animation:spin 36s linear infinite;z-index:-1;pointer-events:none"></span>
+<div style="position:relative;background:rgba(7,7,9,.9);backdrop-filter:blur(28px) saturate(170%);-webkit-backdrop-filter:blur(28px) saturate(170%);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),inset 0 0 0 1px rgba(255,255,255,.04);border-radius:17px;overflow:hidden;display:flex;flex-direction:column;color:#F2F2F0">
+  <div aria-hidden="true" style="position:absolute;inset:0;background:url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27200%27 height=%27200%27%3E%3Cfilter id=%27n%27%3E%3CfeTurbulence type=%27fractalNoise%27 baseFrequency=%27.9%27 numOctaves=%273%27 stitchTiles=%27stitch%27/%3E%3CfeColorMatrix values=%270 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .55 0%27/%3E%3C/filter%3E%3Crect width=%27100%25%27 height=%27100%25%27 filter=%27url(%23n)%27/%3E%3C/svg%3E');background-size:200px 200px;opacity:.09;mix-blend-mode:overlay;pointer-events:none;z-index:2"></div>
+  <div ref="{{ graphRef }}" style="position:relative;width:100%;aspect-ratio:{{ gAspect }};overflow:hidden">{{ graph }}<div style="position:absolute;left:{{ orbX }};top:50%;width:{{ orbW }};aspect-ratio:1;transform:translate(-50%,-50%);pointer-events:none;transition:left .5s cubic-bezier(.3,.7,.4,1),width .5s cubic-bezier(.3,.7,.4,1)"><canvas data-orb="1" style="display:block;width:100%;height:100%;transform:scale(1.05)"></canvas></div></div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1100,&quot;height&quot;:720},&quot;orbSpeed&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1,&quot;min&quot;:0,&quot;max&quot;:3,&quot;step&quot;:0.1,&quot;tsType&quot;:&quot;number&quot;}}">
+class Component extends DCLogic {
+  i3(n) { return 'assets/icons-3d/' + ({ alert: 'fix', threat: 'fix', fingerprint: 'access', identity: 'access', key: 'access', lock: 'access', cloud: 'cost3', server: 'cost3', network: 'connect', monitor: 'report', scan: 'blog', shield: 'rank' }[n] || n) + '.png'; }
+  state = {};
+  A(p) { const e = document.querySelector('img[data-a="' + p + '"]'); return e && e.src ? e.src : p; }
+  orbs = {};
+  refs = {};
+  PAL = [];
+  reduced() { return window.matchMedia && matchMedia('not all').matches; }
+  activity(id) { const t = performance.now() / 1000; return 0.1 + 0.08 * Math.sin(t * 1.6); }
+  ref(id) { return this.refs[id] || (this.refs[id] = el => this.mount(id, el)); }
+  reduced() { return window.matchMedia && matchMedia('not all').matches; }
+  mount(id, el) {
+    if (this.orbs[id]) { this.orbs[id].dispose(); delete this.orbs[id]; }
+    if (!el) return;
+    const go = () => {
+      if (!window.AvistarOrb) return setTimeout(go, 50);
+      const colors = (id === 'hero' || id === 'graph' || id === 'fglobe') ? ['#FF4B1F', '#FFD9C2', '#3A0D04'] : this.PAL.find(p => p.id === id).colors;
+      try {
+        this.orbs[id] = window.AvistarOrb.create(el, () => {
+          const red = this.reduced();
+          return { activity: red ? 0 : this.activity(id), colors, speed: this.props.orbSpeed ?? 1, animated: !red };
+        });
+      } catch (e) { console.warn('orb', e && e.message); }
+    };
+    go();
+  }
+  GN = [
+    ['f', 'Wildcard PHI access', 's3:* across 214 patient-record buckets', -150, 'threat'], ['f', 'Standing privilege', 'Admin rights unused for 90 days', -110, 'alert'], ['f', 'No owner', 'Creator left the health system in March', -70, 'identity'], ['f', 'Key not rotated', 'Access key is 412 days old', -30, 'key'],
+    ['p', 'AdministratorAccess', 'Managed policy · attached directly', 10, 'shield'], ['p', 'SecretsManagerRW', 'Customer managed policy', 50, 'lock'],
+    ['r', 'ehr-prod-db', 'RDS · 2.1M patient records (PHI)', 105, 'server'], ['r', 'claims-exports', 'S3 bucket · revenue cycle', 145, 'cloud'], ['r', 'imaging-archive', 'Azure Blob · DICOM studies', 185, 'network']
+  ];
+  GC = { f: ['#FF4B1F', '#FFB547', 'HAS FINDING', 'Finding'], p: ['#FF4B1F', '#1FDDFF', 'ATTACHED', 'Policy'], r: ['#1FDDFF', '#F2F2F0', 'CAN ACCESS', 'Resource'] };
+  io2(el, key) {
+    if (!el || this['_io' + key]) return;
+    this['_io' + key] = new IntersectionObserver(([e]) => { if (e.intersectionRatio > 0.3 && !this.state[key]) this.setState({ [key]: 1 }); }, { threshold: [0, 0.3] });
+    this['_io' + key].observe(el);
+  }
+  replayKey(key) { this.setState(s => ({ [key]: 0, run: (s.run || 0) + 1 }), () => setTimeout(() => this.setState({ [key]: 1 }), 60)); }
+  GC2 = { i: ['#FF4B1F', '#FF8A5B', 'LINKED', 'Identity'], x: ['#1FDDFF', '#9FEFFF', 'FIX', 'Remediation'] };
+  col(k) { return this.GC[k] || this.GC2[k]; }
+  ICK = { f: ['threat', 'alert', 'key'], p: ['shield', 'lock'], r: ['server', 'cloud', 'network'], i: ['identity'], x: ['shield', 'lock'] };
+  KIDS = {
+    'Wildcard PHI access': [['p', 's3:GetObject', 'Read on patient-record buckets'], ['p', 's3:PutObject', 'Write · no condition keys'], ['r', 'phi-records-2026', 'S3 · 41K patient files'], ['x', 'Scope to 3 buckets', 'Least-privilege suggestion']],
+    'Standing privilege': [['i', 'ci-deploy-role', 'Last admin use 91 days ago'], ['p', 'iam:*', 'Granted via AdministratorAccess'], ['x', 'Make just-in-time', 'Elevate on approval · 1 hour']],
+    'No owner': [['i', 'j.alvarez (offboarded)', 'Original creator · left in March'], ['i', 'Platform team', 'Suggested owner · 82% match'], ['x', 'Assign owner', 'Route to Platform lead']],
+    'Key not rotated': [['i', 'AKIA…7Q2F', 'Access key · 412 days old'], ['r', 'claims-exports', 'Last used 2 days ago'], ['x', 'Rotate key', 'Zero-downtime swap']],
+    'AdministratorAccess': [['p', 'Action: *', 'Resource: * · no conditions'], ['i', '3 identities', 'Share this policy'], ['r', 'All PHI stores', 'Reachable through this policy']],
+    'SecretsManagerRW': [['r', 'ehr-db-credentials', 'Secret · rotated 30 days ago'], ['r', 'fhir-api-key', 'Secret · never rotated'], ['i', 'scribe-agent', 'AI agent · also attached']],
+    'ehr-prod-db': [['r', 'patients table', '1.2M rows · PHI'], ['r', 'encounters table', '860K rows · PHI'], ['i', '4 identities', 'Can read this database'], ['f', 'No audit logging', 'Data events are off']],
+    'claims-exports': [['r', 'claims-2026-q3.csv', 'PHI · 38 MB'], ['f', 'Public ACL', 'Block Public Access is off'], ['i', 'billing-sync', 'Service account · writes daily']],
+    'imaging-archive': [['r', 'DICOM studies', '92K studies · PHI'], ['i', 'pacs-gateway', 'Managed identity'], ['f', 'Shared SAS token', 'Expires in 2029']]
+  };
+  kidsOf(n) {
+    if (n.depth >= 5) return [];
+    const hs = [...n.id].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7), num = (m, b = 1) => b + (hs % m);
+    const gen = {
+      i: [['p', 'Attached policies', num(3) + ' managed · 1 inline'], ['f', 'Open findings', num(5) + ' risks on this identity'], ['r', 'Reachable PHI', num(4) + ' data stores']],
+      p: [['i', 'Used by', num(6) + ' identities'], ['r', 'Grants access to', num(9, 2) + ' resources'], ['x', 'Right-size policy', num(40, 10) + ' unused actions']],
+      r: [['i', 'Who can access', num(7, 2) + ' identities'], ['f', 'Exposure', 'Encryption at rest ' + (hs % 2 ? 'on' : 'off')], ['p', 'Governing policy', 'Resource policy · ' + num(4) + ' statements']],
+      f: [['i', 'Affected identity', 'ci-deploy-role'], ['r', 'Impacted data', num(900, 100) + 'K PHI records'], ['x', 'Remediate', 'Smallest safe change']],
+      x: [['x', 'Request approval', 'Owner sign-off'], ['x', 'Apply change', 'Reversible · one click'], ['f', 'Audit evidence', 'HIPAA §164.312(a)']]
+    };
+    return ((n.depth === 1 && this.KIDS[n.t]) || gen[n.k] || []).map(([k, t, s], j) => ({ k, t, s, j, id: n.id + '.' + j, depth: n.depth + 1, ic: this.ICK[k][j % this.ICK[k].length] }));
+  }
+  lw(n) { return Math.max(n.t.length * (n.depth > 1 ? 7 : 7.6), n.s.length * (n.depth > 1 ? 5.8 : 6.2)); }
+  sideLayout(right, X) {
+    const G = right ? [800, 290] : [200, 290], R0 = 132, NX = right ? 450 : 550, dir = right ? -1 : 1, STEP = 330;
+    const roots = this.GN.map(([k, t, s, a, ic], i) => ({ k, t, s, ic, i, id: 'n' + i, depth: 1 })), all = [], kids = [];
+    const hOf = n => { n.kids = X[n.id] ? this.kidsOf(n) : []; const kh = n.kids.reduce((a, c) => a + hOf(c), 0); n.h = Math.max(n.depth === 1 ? 54 : 50, kh); return n.h; };
+    const place = (n, top, x) => { n.x = x; n.y = top + n.h / 2; all.push(n); let t = top + (n.h - n.kids.reduce((a, c) => a + c.h, 0)) / 2; n.kids.forEach(c => { c.parent = n; place(c, t, x + dir * STEP); t += c.h; kids.push(c); }); };
+    let y = 19, prev = null;
+    roots.forEach(n => { if (prev && prev !== n.k) y += 22; prev = n.k; hOf(n); place(n, y, NX); y += n.h; });
+    roots.forEach(n => { const ang = Math.atan2(n.y - G[1], n.x - G[0]); n.x0 = G[0] + Math.cos(ang) * R0; n.y0 = G[1] + Math.sin(ang) * R0; });
+    return { roots, all, kids, G, R0, NX, dir };
+  }
+  panOf(SK) { return this.state[SK + 'Pan'] || { x: 0, y: 0 }; }
+  svgScale(SK) { const s = this['_svg' + SK]; return s && s.clientWidth ? Math.min(s.clientWidth / 1000, s.clientHeight / 580) : 1; }
+  syncOrb(SK, anim, p) {
+    const s = this['_svg' + SK]; if (!s) return; const cv = s.parentElement && s.parentElement.querySelector('canvas'), od = cv && cv.parentElement; if (!od) return;
+    p = p || this.panOf(SK); const k = this.svgScale(SK), E = 'cubic-bezier(.3,.7,.4,1)';
+    od.style.transition = (anim ? 'transform .6s ' + E + ',' : '') + 'left .5s ' + E + ',width .5s ' + E;
+    od.style.transform = 'translate(-50%,-50%) translate(' + (p.x * k) + 'px,' + (p.y * k) + 'px)';
+  }
+  buildSide(right, o = {}) {
+    const h = React.createElement, on = o.on ?? !!this.state.graphOn, HK = o.hk || 'hover', SK = o.sk || 'selN', hv = this.state[HK], selId = this.state[SK + 'Id'];
+    const X = this.state[SK + 'X'] || {}, L = this.sideLayout(right, X), { G, R0, NX, dir } = L, pan = this.panOf(SK), E = 'cubic-bezier(.3,.7,.4,1)';
+    const rel = n => hv == null || hv === 'c' || n.id === hv || n.id.startsWith(hv + '.') || String(hv).startsWith(n.id + '.');
+    const eon = o.nodesOn ?? on, non = eon, gon = eon;
+    const defs = h('defs', null, L.roots.map(n => { const c = this.GC[n.k]; return h('linearGradient', { key: 'g' + n.i, id: 'gs' + SK + n.i, gradientUnits: 'userSpaceOnUse', x1: n.x0, y1: n.y0, x2: n.x, y2: n.y }, h('stop', { offset: 0, stopColor: c[0] }), h('stop', { offset: 1, stopColor: c[1] })); }));
+    const edges = L.roots.map(n => {
+      const ex = n.x - dir * 24, mx = n.x0 + (ex - n.x0) * .55, d = 'M' + n.x0 + ' ' + n.y0 + ' C' + mx + ' ' + n.y0 + ' ' + mx + ' ' + n.y + ' ' + ex + ' ' + n.y, delay = n.i * 70 + 'ms';
+      return h('g', { key: 'e' + n.i, style: { opacity: rel(n) ? .9 : .12, transition: 'opacity .3s' } },
+        h('path', { d, stroke: 'url(#gs' + SK + n.i + ')', strokeWidth: 1.25, fill: 'none', pathLength: 1, strokeDasharray: 1, style: { d: 'path("' + d + '")', strokeDashoffset: eon ? 0 : 1, transition: 'stroke-dashoffset 1s ' + E + ' ' + delay + ', d .5s ' + E } }),
+        eon && h('path', { d, stroke: '#fff', strokeWidth: 2.5, fill: 'none', pathLength: 1, strokeDasharray: '0.001 0.999', strokeLinecap: 'round', style: { d: 'path("' + d + '")', transition: 'd .5s ' + E, animation: 'flow ' + (3 + (n.i % 3) * .6) + 's linear ' + (1.2 + n.i * .15) + 's infinite both' } }));
+    });
+    const kidEdges = L.kids.map(n => {
+      const p = n.parent, sx = p.x + dir * (38 + this.lw(p) + 14), ex = n.x - dir * 24, mx = (sx + ex) / 2, d = 'M' + sx + ' ' + p.y + ' C' + mx + ' ' + p.y + ' ' + mx + ' ' + n.y + ' ' + ex + ' ' + n.y, c = this.col(n.k);
+      return h('g', { key: 'ke' + n.id, style: { opacity: rel(n) ? .8 : .1, transition: 'opacity .3s' } },
+        h('path', { d, stroke: c[1], strokeOpacity: .55, strokeWidth: 1.1, fill: 'none', pathLength: 1, strokeDasharray: 1, style: { d: 'path("' + d + '")', transition: 'd .5s ' + E, animation: 'gDraw .7s ' + E + ' ' + (n.j * 60) + 'ms both' } }),
+        h('circle', { cx: sx, cy: p.y, r: 2.5, fill: c[0] }),
+        h('path', { d, stroke: '#fff', strokeWidth: 2, fill: 'none', pathLength: 1, strokeDasharray: '0.001 0.999', strokeLinecap: 'round', style: { d: 'path("' + d + '")', transition: 'd .5s ' + E, animation: 'flow ' + (2.6 + n.j * .5) + 's linear ' + (.8 + n.j * .2) + 's infinite both' } }));
+    });
+    const tx = dir * 38, anchor = right ? 'end' : 'start';
+    const click = n => () => {
+      if (this._justDragged) return;
+      const NXs = { ...X }, opening = !NXs[n.id] && n.depth < 5;
+      if (opening) NXs[n.id] = 1; else Object.keys(NXs).forEach(k => { if (k === n.id || k.startsWith(n.id + '.')) delete NXs[k]; });
+      const st = { [SK + 'X']: NXs, [SK + 'Id']: n.id, [SK + 'Info']: { title: n.t, note: n.s, kind: this.col(n.k)[3] } };
+      if (n.depth === 1) st[SK] = n.i;
+      if (opening) {
+        const nl = this.sideLayout(right, NXs), me = nl.all.find(m => m.id === n.id), p = { ...this.panOf(SK) };
+        if (me && me.kids.length) {
+          const ys = me.kids.map(c => c.y), y1 = Math.min(...ys) - 30, y2 = Math.max(...ys) + 30, cx = me.kids[0].x, far = cx + dir * (38 + Math.max(...me.kids.map(c => this.lw(c))) + 20);
+          if (!right && far + p.x > 980) p.x = 980 - far; if (right && far + p.x < 20) p.x = 20 - far;
+          if (y2 + p.y > 570) p.y = 570 - y2; if (y1 + p.y < 10) p.y = Math.min(570 - y2, 10 - y1);
+          st[SK + 'Pan'] = p;
+        }
+      }
+      this.setState(st, () => this.syncOrb(SK, true));
+    };
+    const nodeEls = L.all.map(n => {
+      const r1 = n.depth === 1, d = r1 && non ? n.i * 70 + 450 : 0, active = selId === n.id || hv === n.id || (selId == null && r1 && this.state[SK] === n.i), c = this.col(n.k), open = !!X[n.id], can = n.depth < 5, R = r1 ? 22 : 18;
+      return h('g', { key: 'n' + n.id, style: { cursor: 'pointer', transform: 'translate(' + n.x + 'px,' + n.y + 'px)', transition: 'transform .5s ' + E }, onMouseEnter: () => this.setState({ [HK]: n.id }), onMouseLeave: () => this.setState({ [HK]: null }), onClick: click(n) },
+        h('g', { style: r1 ? { opacity: non ? (rel(n) ? 1 : .3) : 0, transform: non ? 'translateX(0)' : 'translateX(' + dir * 16 + 'px)', transition: 'opacity .5s ' + d + 'ms, transform .6s ' + E + ' ' + d + 'ms' } : { opacity: rel(n) ? 1 : .3, transition: 'opacity .3s', animation: 'gIn .5s ' + E + ' ' + (n.j * 60 + 120) + 'ms both' } },
+          h('rect', { x: right ? -(38 + this.lw(n)) : -24, y: -24, width: 62 + this.lw(n), height: 48, fill: 'transparent' }),
+          h('circle', { r: R, fill: '#121214', stroke: active || open ? c[1] : '#26262A', strokeWidth: 1.25, style: { transition: 'stroke .25s' } }),
+          h('image', { href: this.A(this.i3(n.ic)), x: r1 ? -12 : -10, y: r1 ? -12 : -10, width: r1 ? 24 : 20, height: r1 ? 24 : 20 }),
+          n.k === 'f' && h('circle', { cx: R * .68, cy: -R * .68, r: 3.5, fill: '#FF4B1F', stroke: '#0B0B0C', strokeWidth: 2 }),
+          can && h('g', { transform: 'translate(' + (R * .72) + ' ' + (R * .72) + ')' }, h('circle', { r: 7, fill: open ? c[1] : '#18181B', stroke: c[1], strokeWidth: 1 }), h('path', { d: open ? 'M-3 0H3' : 'M-3 0H3M0 -3V3', stroke: open ? '#0B0B0C' : c[1], strokeWidth: 1.4, strokeLinecap: 'round' })),
+          h('text', { x: tx, y: -2, fill: active ? '#F2F2F0' : '#D9D7D2', fontSize: r1 ? 14 : 13, textAnchor: anchor, style: { fontFamily: 'Inter,sans-serif', transition: 'fill .25s' } }, n.t),
+          h('text', { x: tx, y: r1 ? 15 : 14, fill: '#7a7874', fontSize: r1 ? 11.5 : 11, textAnchor: anchor, style: { fontFamily: 'Inter,sans-serif' } }, n.s)));
+    });
+    const groups = [['f', 'Findings'], ['p', 'Policies'], ['r', 'Resources']].map(([k, lab]) => { const g = L.roots.filter(n => n.k === k), y1 = g[0].y - g[0].h / 2 + 9, y2 = g[g.length - 1].y + g[g.length - 1].h / 2 - 9, gx = right ? NX + 44 : NX - 44;
+      return h('g', { key: 'gr' + k, style: { opacity: gon ? 1 : 0, transition: 'opacity .6s .3s' } }, h('line', { x1: gx, x2: gx, y1, y2, stroke: this.GC[k][1], strokeOpacity: .35, strokeWidth: 1 }), h('text', { x: gx, y: y1 - 8, fill: '#7a7874', fontSize: 10, letterSpacing: 1.6, textAnchor: 'middle', style: { fontFamily: 'Inter,sans-serif' } }, lab.toUpperCase())); });
+    const ring = h('circle', { cx: G[0], cy: G[1], r: R0, fill: 'none', stroke: '#26262A', strokeWidth: 1, strokeDasharray: '2 5', style: { opacity: on ? 1 : 0, transition: 'opacity .8s' } });
+    const core = h('circle', { cx: G[0], cy: G[1], r: 120, fill: 'transparent', style: { cursor: 'pointer' }, onMouseEnter: () => this.setState({ [HK]: 'c' }), onMouseLeave: () => this.setState({ [HK]: null }), onClick: () => { if (this._justDragged) return; o.onCore ? o.onCore() : this.setState({ [SK]: null, [SK + 'Id']: null, [SK + 'Info']: null }); } });
+    const bg = h('rect', { x: -4000, y: -4000, width: 9000, height: 9000, fill: 'transparent' });
+    const hint = null, _hint = h('text', { x: right ? 984 : 16, y: 568, fill: '#5a5955', fontSize: 11, textAnchor: right ? 'end' : 'start', style: { fontFamily: 'Inter,sans-serif', pointerEvents: 'none', opacity: on ? 1 : 0, transition: 'opacity .6s 1s' } }, 'Click a node to branch deeper · drag to pan · double-click to reset');
+    const svgRef = this['_svgRef' + SK] || (this['_svgRef' + SK] = el => { this['_svg' + SK] = el; if (el) requestAnimationFrame(() => this.syncOrb(SK, false)); });
+    const pgRef = this['_pgRef' + SK] || (this['_pgRef' + SK] = el => { this['_pg' + SK] = el; });
+    const down = e => { if (e.button !== 0) return; this._drag = { SK, sx: e.clientX, sy: e.clientY, p0: this.panOf(SK), moved: false, id: e.pointerId, k: this.svgScale(SK) }; };
+    const move = e => { const D = this._drag; if (!D || D.SK !== SK) return; const dx = e.clientX - D.sx, dy = e.clientY - D.sy; if (!D.moved && Math.hypot(dx, dy) < 5) return;
+      if (!D.moved) { D.moved = true; try { e.currentTarget.setPointerCapture(D.id); } catch (_) {} e.currentTarget.style.cursor = 'grabbing'; }
+      D.p = { x: D.p0.x + dx / D.k, y: D.p0.y + dy / D.k }; const g = this['_pg' + SK]; if (g) { g.style.transition = 'none'; g.style.transform = 'translate(' + D.p.x + 'px,' + D.p.y + 'px)'; } this.syncOrb(SK, false, D.p); };
+    const up = e => { const D = this._drag; this._drag = null; if (!D || !D.moved) return; e.currentTarget.style.cursor = 'grab'; this._justDragged = true; setTimeout(() => { this._justDragged = false; }, 0);
+      const g = this['_pg' + SK]; if (g) g.style.transition = 'transform .6s ' + E; this.setState({ [SK + 'Pan']: D.p }); };
+    const reset = () => this.setState({ [SK + 'Pan']: { x: 0, y: 0 } }, () => this.syncOrb(SK, true));
+    return h('svg', { key: 's' + (right ? 'r' : 'l') + (this.state.run || 0), ref: svgRef, viewBox: '0 0 1000 580', preserveAspectRatio: 'xMidYMid meet', onPointerDown: down, onPointerMove: move, onPointerUp: up, onPointerCancel: up, onDoubleClick: reset, style: { position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'block', overflow: 'visible', cursor: 'grab', touchAction: 'none', userSelect: 'none' } },
+      defs, h('g', { ref: pgRef, style: { transform: 'translate(' + pan.x + 'px,' + pan.y + 'px)', transition: 'transform .6s ' + E } }, bg, ring, edges, kidEdges, groups, nodeEls, core), hint);
+  }
+  buildGraph() {
+    const lay = this.state.gLayout || 'left';
+    if (lay !== 'radial') return this.buildSide(lay === 'right');
+    const h = React.createElement, on = !!this.state.graphOn, hv = this.state.hover, sel = this.state.selN, C = [500, 320], RX = 320, RY = 228, R0 = 92;
+    const nodes = this.GN.map(([k, t, s, a, ic], i) => { const r = a * Math.PI / 180, c = Math.cos(r), sn = Math.sin(r); return { k, t, s, i, ic, c, sn, x: C[0] + c * RX, y: C[1] + sn * RY, x0: C[0] + c * R0, y0: C[1] + sn * R0 }; });
+    const defs = h('defs', null, nodes.map(n => { const c = this.GC[n.k]; return h('linearGradient', { key: 'g' + n.i, id: 'ge' + n.i, gradientUnits: 'userSpaceOnUse', x1: n.x0, y1: n.y0, x2: n.x, y2: n.y }, h('stop', { offset: 0, stopColor: c[0], stopOpacity: .9 }), h('stop', { offset: 1, stopColor: c[1], stopOpacity: .9 })); }));
+    const dim = i => hv != null && hv !== i && hv !== 'c';
+    const edges = nodes.map(n => {
+      const d = `M${n.x0} ${n.y0} L${n.x - n.c * 30} ${n.y - n.sn * 30}`, delay = n.i * 80 + 'ms';
+      return h('g', { key: 'e' + n.i, style: { opacity: dim(n.i) ? .12 : 1, transition: 'opacity .3s' } },
+        h('path', { d, stroke: 'url(#ge' + n.i + ')', strokeWidth: 1.25, fill: 'none', pathLength: 1, strokeDasharray: 1, style: { strokeDashoffset: on ? 0 : 1, transition: `stroke-dashoffset 1s cubic-bezier(.3,.7,.4,1) ${delay}` } }),
+        on && h('path', { d, stroke: '#fff', strokeWidth: 2.5, fill: 'none', pathLength: 1, strokeDasharray: '0.001 0.999', strokeLinecap: 'round', style: { animation: `flow ${3 + (n.i % 3) * .6}s linear ${1.2 + n.i * .15}s infinite both` } }));
+    });
+    const nodeEls = nodes.map(n => {
+      const lx = 0, ly = n.sn < -0.1 ? -40 : 48, anchor = 'middle', d = on ? n.i * 80 + 450 : 0, active = sel === n.i || hv === n.i;
+      return h('g', { key: 'n' + n.i, transform: `translate(${n.x} ${n.y})`, style: { cursor: 'pointer' }, onMouseEnter: () => this.setState({ hover: n.i }), onMouseLeave: () => this.setState({ hover: null }), onClick: () => this.setState({ selN: n.i }) },
+        h('g', { style: { opacity: on ? (dim(n.i) ? .3 : 1) : 0, transform: on ? 'scale(1)' : 'scale(.5)', transition: `opacity .5s ${d}ms, transform .6s cubic-bezier(.3,1.5,.5,1) ${d}ms` } },
+          h('circle', { r: 26, fill: '#121214', stroke: active ? this.GC[n.k][1] : '#26262A', strokeWidth: 1.25, style: { transition: 'stroke .25s' } }),
+          h('image', { href: this.A(this.i3(n.ic)), x: -15, y: -15, width: 30, height: 30 }),
+          n.k === 'f' && h('circle', { cx: 18, cy: -18, r: 3.5, fill: '#FF4B1F', stroke: '#0B0B0C', strokeWidth: 2 }),
+          h('text', { x: lx, y: ly, fill: active ? '#F2F2F0' : '#B9B7B2', fontSize: 13, textAnchor: anchor, style: { fontFamily: 'Inter,sans-serif', transition: 'fill .25s' } }, n.t)));
+    });
+    const core = h('circle', { cx: C[0], cy: C[1], r: 80, fill: 'transparent', style: { cursor: 'pointer' }, onMouseEnter: () => this.setState({ hover: 'c' }), onMouseLeave: () => this.setState({ hover: null }), onClick: () => this.setState({ selN: null }) });
+    const ring = h('circle', { cx: C[0], cy: C[1], r: R0, fill: 'none', stroke: '#26262A', strokeWidth: 1, strokeDasharray: '2 5', style: { opacity: on ? 1 : 0, transition: 'opacity .8s' } });
+    return h('svg', { key: 'g' + (this.state.run || 0), viewBox: '0 0 1000 640', preserveAspectRatio: 'xMidYMid meet', style: { position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'block' } }, defs, ring, edges, nodeEls, core);
+  }
+
+  ensureOrb() {
+    const cv = this._gwrap && this._gwrap.querySelector('canvas[data-orb]');
+    if (!cv || !window.AvistarOrb) return;
+    if (this.orbs.graph && this._orbCv === cv) return;
+    this._orbCv = cv; this.mount('graph', cv);
+  }
+  componentDidMount() { if (!window.AvistarOrb && !document.querySelector('script[data-orb-js]')) { const s = document.createElement('script'); s.src = './orb-cube.js'; s.dataset.orbJs = '1'; document.head.appendChild(s); } this.__aT = setTimeout(() => this.forceUpdate(), 60); this._orbIv = setInterval(() => { this.ensureOrb(); if (this.orbs.graph && this._orbCv && this._orbCv.isConnected) clearInterval(this._orbIv); }, 120); }
+  componentDidUpdate() { this.ensureOrb(); }
+  componentWillUnmount() { clearTimeout(this.__aT); clearInterval(this._orbIv); ['_iographOn'].forEach(k => this[k] && this[k].disconnect()); Object.values(this.orbs).forEach(o => o.dispose()); }
+  renderVals() {
+    return {
+      graph: (() => { try { return this.buildGraph(); } catch (e) { console.warn('[graph]', e && e.message); return null; } })(),
+      layouts: [['radial', 'Radial'], ['left', 'Globe left'], ['right', 'Globe right']].map(([id, label]) => { const a = (this.state.gLayout || 'left') === id; return { label, bg: a ? '#FF4B1F' : '#18181A', fg: a ? '#fff' : '#C9C7C2', pick: () => this.setState(s => ({ gLayout: id, selN: null, selNId: null, selNInfo: null, selNX: {}, selNPan: { x: 0, y: 0 }, hover: null, graphOn: 0, run: (s.run || 0) + 1 }), () => setTimeout(() => this.setState({ graphOn: 1 }), 60)) }; }),
+      gAspect: (this.state.gLayout || 'left') === 'radial' ? '1000/640' : '1000/580',
+      orbX: { radial: '50%', left: '20%', right: '80%' }[this.state.gLayout || 'left'],
+      orbW: (this.state.gLayout || 'left') === 'radial' ? '15%' : '21%',
+      graphOrbRef: this.ref('graph'),
+      graphRef: this.gRefFn || (this.gRefFn = el => { this._gwrap = el; this.io2(el, 'graphOn'); }),
+    };
+  }
+}
+</script>
+</body>
+</html>
